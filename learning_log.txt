@@ -82,8 +82,50 @@ BiliSubtitle/
 - 已执行 git status；当前默认分支为 master，4 个已有文件均处于 Untracked 状态。
 - 关键理解：Git 会先看到文件，但只有经过 add/commit 后才进入版本历史。
 - 下一步：把 master 改为 main -> 创建 .gitignore -> 理解 Working Tree / Staging Area / Commit -> 配置 Git 身份 -> 第一次 commit。
-`r`n[2026-10-06] G2/G3 学习推进。`r`n- G1 状态：PASS；当前分支 main。`r`n- 已学习 Working Tree / Staging Area / git add / .gitignore。`r`n- 用户新增 github_knowledge.docx，作为长期 GitHub 学习手册；已生成并写入知识点、命令拆解与 Q&A。`r`n- 已创建 WORK_RULES.md，固化持续更新 learning_log 与 github_knowledge、文档美观、Git 安全等规则。`r`n- 已确认本机 Git core.autocrlf=true；learning_log.txt 的 LF -> CRLF 信息属于换行符 Warning，不是错误。`r`n- 新知识：.gitkeep 是为空目录占位的普通约定文件，不是 .gitignore 的占位文件。`r`n- 新知识：PowerShell @(... ) 创建数组，| 是管道，Set-Content 写文件，Get-Content 读文件。`r`n- 下一步：整理公开仓库与本地学习辅助文件边界 -> 配置 Git 作者身份 -> 第一次 Commit。
-`r`n[2026-10-06] G2 继续。`r`n- 用户确认当前暂存区包含 .gitignore / WORK_RULES.md / download_subtitles.bat / learning_log.txt，状态符合预期。`r`n- 新知识：archive.txt 是 yt-dlp 的下载归档/已处理视频清单，用于避免批量任务重复处理同一视频。`r`n- archive.txt 属于本机运行状态，因此保持在 .gitignore 中，不提交 GitHub。`r`n- 对字幕-only 模式的归档写入时机将在真正实现批量命令时用最小测试验证。`r`n- 下一步：配置 Git 作者身份（user.name / user.email）-> 第一次 Commit -> git log 验收。
-`r`n[2026-10-06] 第一次 Commit 前置知识。`r`n- 新知识：每个 Commit 会记录作者 user.name 和 user.email。`r`n- 新知识：git config --global 将配置设为当前 Windows 用户的默认 Git 身份；省略 --global 可对当前仓库覆盖。`r`n- 开源项目建议使用 GitHub noreply 邮箱，减少真实邮箱暴露；从 GitHub Settings -> Emails 复制实际显示的 noreply 地址。`r`n- 因 learning_log.txt 再次更新，第一次 Commit 前需要再次 git add learning_log.txt。
-`r`n[2026-10-06] G2 PASS / 第一次 Commit 完成。`r`n- root commit：2e2421e chore:initialize project structure。`r`n- git status 出现 ~$thub_knowledge.docx；这是 Word 打开 DOCX 时生成的临时锁文件，不是 github_knowledge.docx 本体。`r`n- .gitignore 已追加 ~$*.docx，用于忽略所有 Word 临时 DOCX 锁文件。`r`n- 新知识：git commit -m message 中 -m 是 --message 的短选项，表示直接在命令行提供 Commit message。`r`n- 用户误输入 git commit ...；省略号不是 Git 特殊语法，因此 Git 把 ... 当作 pathspec，出现 pathspec 不匹配错误。该错误不影响已经完成的第一次 Commit。`r`n- 下一步：提交 .gitignore / learning_log 的这次维护修改，然后进入 G4：远程仓库、origin、push。
-`r`n[2026-10-06] G2 补充知识。`r`n- 用户第二次 Commit 已完成：ddc10ec chore: ignore Word temporary files。`r`n- 排障案例已写入 github_knowledge.docx：Word 临时锁文件 ~$*.docx 未被原先精确规则 github_knowledge.docx 忽略；修复为新增通配规则 ~$*.docx，并用 git status 验证。`r`n- 新知识：(HEAD -> main) 不是倒叙标记；HEAD 表示当前工作位置，当前指向 main 分支，而 main 分支指向 ddc10ec。`r`n- git log 默认按较新 Commit 在上、较旧 Commit 在下显示；这与 HEAD 指针是两个独立概念。`r`n- 下一步：G4/G5，创建 GitHub 远程仓库并学习 remote / origin / push / upstream。
+
+[2026-10-06] G2/G3 学习推进。
+- G1 状态：PASS；当前分支 main。
+- 已学习 Working Tree / Staging Area / git add / .gitignore。
+- 用户新增 github_knowledge.docx，作为长期 GitHub 学习手册；已生成并写入知识点、命令拆解与 Q&A。
+- 已创建 WORK_RULES.md，固化持续更新 learning_log 与 github_knowledge、文档美观、Git 安全等规则。
+- 已确认本机 Git core.autocrlf=true；learning_log.txt 的 LF -> CRLF 信息属于换行符 Warning，不是错误。
+- 新知识：.gitkeep 是为空目录占位的普通约定文件，不是 .gitignore 的占位文件。
+- 新知识：PowerShell @(... ) 创建数组，| 是管道，Set-Content 写文件，Get-Content 读文件。
+- 下一步：整理公开仓库与本地学习辅助文件边界 -> 配置 Git 作者身份 -> 第一次 Commit。
+
+[2026-10-06] G2 继续。
+- 用户确认当前暂存区包含 .gitignore / WORK_RULES.md / download_subtitles.bat / learning_log.txt，状态符合预期。
+- 新知识：archive.txt 是 yt-dlp 的下载归档/已处理视频清单，用于避免批量任务重复处理同一视频。
+- archive.txt 属于本机运行状态，因此保持在 .gitignore 中，不提交 GitHub。
+- 对字幕-only 模式的归档写入时机将在真正实现批量命令时用最小测试验证。
+- 下一步：配置 Git 作者身份（user.name / user.email）-> 第一次 Commit -> git log 验收。
+
+[2026-10-06] 第一次 Commit 前置知识。
+- 新知识：每个 Commit 会记录作者 user.name 和 user.email。
+- 新知识：git config --global 将配置设为当前 Windows 用户的默认 Git 身份；省略 --global 可对当前仓库覆盖。
+- 开源项目建议使用 GitHub noreply 邮箱，减少真实邮箱暴露；从 GitHub Settings -> Emails 复制实际显示的 noreply 地址。
+- 因 learning_log.txt 再次更新，第一次 Commit 前需要再次 git add learning_log.txt。
+
+[2026-10-06] G2 PASS / 第一次 Commit 完成。
+- root commit：2e2421e chore:initialize project structure。
+- git status 出现 ~$thub_knowledge.docx；这是 Word 打开 DOCX 时生成的临时锁文件，不是 github_knowledge.docx 本体。
+- .gitignore 已追加 ~$*.docx，用于忽略所有 Word 临时 DOCX 锁文件。
+- 新知识：git commit -m "message" 中 -m 是 --message 的短选项，表示直接在命令行提供 Commit message。
+- 用户误输入 git commit ...；省略号不是 Git 特殊语法，因此 Git 把 ... 当作 pathspec，出现 pathspec 不匹配错误。该错误不影响已经完成的第一次 Commit。
+- 下一步：提交 .gitignore / learning_log 的这次维护修改，然后进入 G4：远程仓库、origin、push。
+
+[2026-10-06] G2 补充知识。
+- 用户第二次 Commit 已完成：ddc10ec chore: ignore Word temporary files。
+- 排障案例已写入 github_knowledge.docx：Word 临时锁文件 ~$*.docx 未被原先精确规则 github_knowledge.docx 忽略；修复为新增通配规则 ~$*.docx，并用 git status 验证。
+- 新知识：(HEAD -> main) 不是倒叙标记；HEAD 表示当前工作位置，当前指向 main 分支，而 main 分支指向 ddc10ec。
+- git log 默认按较新 Commit 在上、较旧 Commit 在下显示；这与 HEAD 指针是两个独立概念。
+- 下一步：G4/G5，创建 GitHub 远程仓库并学习 remote / origin / push / upstream。
+
+[2026-10-06] G4/G5 开始。
+- GitHub 远程仓库已创建并核验：TomashCanez/bili-subtitle，Public，默认分支 main，当前为空。
+- 本地最新 Commit：42904fb docs: record Git troubleshooting notes。
+- 当前尚未配置 remote。
+- 新知识：remote 是本地仓库保存的远程仓库连接；origin 是常用远程别名，不是特殊分支。
+- 新知识：git remote add origin <URL> 建立远程连接；git remote -v 检查 fetch/push URL。
+- 新知识：git push -u origin main 第一次推送 main，并建立 main 跟踪 origin/main 的 upstream 关系。
+- 下一步：用户亲手执行 remote add、remote -v、push -u，并验证 GitHub 远程 Commit。
