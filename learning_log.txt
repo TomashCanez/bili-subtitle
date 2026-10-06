@@ -165,3 +165,171 @@ BiliSubtitle/
 - 流程提醒：本轮 AI 再次出现“聊天中讲完知识但未立即同步文件”的遗漏，因此 WORK_RULES.md 新增强制规则：只要本轮新增 Git/GitHub 知识、命令参数、Warning/Error 或 PASS/BLOCKED 验收，必须在继续下一阶段前同步更新 learning_log.txt 与 github_knowledge.docx。
 - 下一步：同步知识手册完成后，进入 F0：在 feat/single-video-subtitles 分支实现单视频字幕下载。
 
+[2026-10-06] G6 补充 PASS：Branch hygiene 与 Fast-forward。
+- 用户在 main 上提交并推送学习记录：7f33879 docs: record branch learning notes。
+- 用户切回 feat/single-video-subtitles 后执行 git merge main，结果为 Fast-forward。
+- merge 后 git status：On branch feat/single-video-subtitles / working tree clean。
+- git log --oneline --decorate 显示：7f33879 (HEAD -> feat/single-video-subtitles, origin/main, main)。说明 feature branch、main 与 origin/main 再次位于同一基线。
+- 新知识：git --no-pager diff --staged 中 `no` 表示“不”，`pager` 表示分页查看器；`--no-pager` 即本次 Git 命令不要启动分页器，直接把输出打印到终端。
+- 新知识：pager 是“分页器/分页查看器”，Git 输出较长时可交给 less 等 pager 浏览；`--no-pager` 是 Git 的全局选项，放在子命令 diff 之前。
+- 新知识：merge 的基本含义是“合并”；`git merge main` 在当前分支上把 main 已有的历史整合进来。
+- 新知识：Fast-forward merge 发生在当前分支没有自己的分叉 Commit、目标分支只是单纯领先时。Git 不创建额外 Merge Commit，只把当前分支指针向前移动到目标分支所在 Commit。
+- 新知识：Branch hygiene 是让每个功能分支尽量只包含与该功能相关的修改，避免学习记录、临时文件或无关维护改动混进功能 PR。
+- 文件边界规则已修订：WORK_RULES.md 是 AI 持续规则的权威文件；github_knowledge.docx 只给用户看知识；learning_log.txt 只记学习进度。
+- 下一步：进入 F0，在 feat/single-video-subtitles 分支实现单视频字幕下载最小版本。
+
+[2026-10-06] F0 前置检查：yt-dlp 尚不可用。
+- 在 D:\AIWorkspace\BiliSubtitle 执行 `yt-dlp --version` 与 `where.exe yt-dlp`，系统均未找到 yt-dlp。
+- 结论：当前不是项目代码 Bug，而是运行依赖尚未安装，或 yt-dlp 未加入 PATH。
+- 新知识：PATH 是系统用于查找可执行程序的一组目录；命令存在但不在 PATH 时，也会表现为“无法识别为命令”。
+- 官方 yt-dlp Windows 安装文档支持 winget：`winget install yt-dlp`；官方 README 也推荐 Windows 使用独立 `yt-dlp.exe`。
+- 下一步：由用户亲手安装 yt-dlp，并用 `yt-dlp --version` 与 `where.exe yt-dlp` 验收，然后进入 F0 脚本实现。
+
+[2026-10-06] F0 前置检查修正：用户交互环境 PASS。
+- 用户在正常 PowerShell（C:\Users\瞿乐言）执行 `yt-dlp --version`，输出 2026.08.19。
+- 用户切换到 D:\ 后再次执行 `yt-dlp --version`，仍输出 2026.08.19。
+- 结论：yt-dlp 对用户的正常交互式 PowerShell 已正确安装并可通过 PATH 调用；F0 对用户本人不再 BLOCKED。
+- ops-bridge 此前提示找不到 yt-dlp，说明 Agent/Windows 服务进程使用了不同的用户身份或环境变量快照，因此它看到的 PATH 与用户交互式 PowerShell 不一致。
+- 新知识：PATH 是进程级环境的一部分；同一台电脑上，不同用户、服务进程、桌面终端可以拥有不同的 PATH，因此“用户终端可运行”与“后台服务可运行”并不矛盾。
+- 后续 F0 的人工验收以用户 PowerShell 结果为准；如需让 ops-bridge 也直接调用 yt-dlp，可再取得 `where.exe yt-dlp` 的绝对路径供 Agent 使用。
+- 下一步：实现 F0 单视频字幕下载最小脚本。
+
+[2026-10-06] F0 字幕侦察：未登录仅见 danmaku。
+- 用户执行 where.exe yt-dlp，得到 C:\Users\瞿乐言\AppData\Local\Microsoft\WinGet\Links\yt-dlp.exe，确认 yt-dlp 的真实可执行路径。
+- 用户对 B 站视频 BV1krM46BEpn 执行 yt-dlp --list-subs。
+- yt-dlp 明确警告：Subtitles are only available when logged in.
+- 未登录状态下 Available subtitles 仅显示：danmaku  xml。
+- 结论：该视频的普通字幕需要登录态；danmaku 确实作为名为 danmaku 的字幕轨道出现，后续可用 --sub-langs 排除。
+- 1080P 高码率/大会员 Warning 属于视频格式权限提示，与当前只列字幕的核心阻塞不同；字幕核心阻塞是缺少登录态。
+- 下一步：用户在自己的交互式 PowerShell 中，使用当前已登录 B 站的浏览器执行 --cookies-from-browser <browser> --list-subs，验证真实字幕语言标签。
+
+[2026-10-06] F0 登录态排障：Chrome Cookie 读取失败。
+- 第一次执行 `yt-dlp --cookies-from-browser chrome --list-subs` 报错：`Could not copy Chrome cookie database`。
+- 该错误对应 Windows/Chromium Cookie 数据库被占用或无法复制的典型情况，常见于 Chrome 仍在运行。
+- 第二次执行时数据库已能读取，但报错：`Failed to decrypt with DPAPI`。
+- 结论：第二个错误已经进入 Cookie 解密阶段；Chrome/Windows 的新式 Cookie 加密（包括 v20/App-Bound Encryption 场景）可能导致 yt-dlp 无法直接解密。
+- yt-dlp 官方 FAQ 仍支持 `--cookies-from-browser` 与 `--cookies cookies.txt` 两条路线，并提示 Firefox 通常更稳。
+- 安全规则：Cookie 属于登录凭证；不得提交 Git，不得粘贴到聊天中。
+- 推荐下一步：优先用 Firefox 登录 B 站后执行 `yt-dlp --cookies-from-browser firefox --list-subs <URL>`；若坚持 Chrome，则使用可信的本地方式导出 Netscape 格式 cookies.txt，再通过 `--cookies cookies.txt` 使用。
+
+[2026-10-06] F0 登录态验证 PASS：Firefox 成功读取真实字幕。
+- 用户执行 `yt-dlp --cookies-from-browser firefox --list-subs https://www.bilibili.com/video/BV1krM46BEpn` 成功。
+- yt-dlp 输出 `Extracted 31 cookies from firefox`，说明 Firefox 登录态读取成功。
+- 该视频登录后可用字幕轨道为：`danmaku xml`、`ai-en srt`、`ai-ja srt`。
+- 结论：B 站弹幕轨道名确认为 `danmaku`；真实字幕轨道本例为 `ai-en` 与 `ai-ja`，格式为 SRT；当前未返回中文字幕轨道。
+- 新知识：`--sub-langs` 支持 `all` 并可用 `-` 前缀排除语言标签，因此 `--sub-langs "all,-danmaku"` 可以选择全部字幕并排除弹幕轨道。
+- 新知识：`--skip-download` 表示不下载视频本体，但仍允许写出字幕等辅助文件；`--write-subs` 表示写出字幕文件。
+- 下一步：实现 F0 第一版 `download_subtitles.bat`，使用 Firefox 登录态、只写字幕、排除 danmaku，并输出到 subtitles 目录。
+
+[2026-10-06] F0 需求调整：字幕优先级改为单轨最优选择。
+- 用户新增功能约束：字幕导出优先级为中文 > 英语 > 其它语言；同一语言内人工字幕 > AI 字幕。
+- 合并后的总排序：中文人工 > 中文 AI > 英文人工 > 英文 AI > 其它人工 > 其它 AI。
+- `danmaku` 永久排除，不参与候选。
+- 当前 B 站字幕标签中，以 `ai-` 开头的轨道按 AI 字幕处理；不以 `ai-` 开头的候选按人工字幕处理。
+- 新知识：yt-dlp 当前 `--sub-langs` 的逗号分隔语义是“下载所有匹配语言”，不是“按顺序只取第一个可用语言”；因此本项目需要自己增加一层字幕选择逻辑。
+- 设计决定：F0 改为“先读取可用字幕 -> 本地选择最优单轨 -> 再调用 yt-dlp 下载该轨道”。
+- 下一步：增加 PowerShell 字幕选择器，并由 download_subtitles.bat 调用。
+
+[2026-10-06] F0 字幕优先级选择器逻辑测试 PASS。
+- 新增 `download_subtitles.ps1`：负责读取字幕列表、排除 danmaku、按优先级选择唯一最优字幕，再调用 yt-dlp 下载。
+- `download_subtitles.bat` 简化为 Windows 入口，负责启动 PowerShell 脚本。
+- 选择器排序规则：中文人工 > 中文 AI > 英文人工 > 英文 AI > 其它人工 > 其它 AI。
+- 纯逻辑测试结果：
+  - zh-CN / ai-zh / en / ai-en / ja / ai-ja / danmaku -> zh-CN
+  - ai-zh / en -> ai-zh
+  - en / ai-en / ja -> en
+  - ai-en / ja -> ai-en
+  - ja / ai-ja -> ja
+  - 实测视频候选 danmaku / ai-en / ai-ja -> ai-en
+- 结论：优先级算法 PASS；下一步由用户在真实 Firefox 登录环境运行 download_subtitles.bat，验证完整下载链路与输出文件。
+
+[2026-10-06] F0 PASS：单视频最优字幕真实下载成功。
+- 用户在 feat/single-video-subtitles 分支运行 .\download_subtitles.bat，输入 BV1krM46BEpn。
+- 脚本先侦察字幕并输出 Selected subtitle: ai-en，符合当前实际候选 danmaku / ai-en / ai-ja 与既定优先级。
+- Firefox 登录态成功读取：Extracted 31 cookies from firefox。
+- yt-dlp 明确输出 Downloading subtitles: ai-en，并写出 SRT 文件到 subtitles 目录。
+- 已实际核验输出文件存在：一红16年，干啥啥赚钱？｜屠龙博士创业的秘密！ [BV1krM46BEpn].ai-en.srt，大小 218793 bytes。
+- subtitles/ 已在 .gitignore 中，因此真实字幕文件不会进入正常 Git 提交。
+- 新知识：即使使用 --skip-download，yt-dlp 日志仍可能显示 Downloading 1 format(s): ...，这表示它解析/选择了媒体格式；本次实际输出目录只有 SRT，没有视频文件，因此不代表视频本体被下载。
+- 当前 Git 工作区：WORK_RULES.md、download_subtitles.bat、learning_log.txt 有修改，download_subtitles.ps1 为未跟踪新文件。
+- 下一步：由用户亲手只暂存功能文件 download_subtitles.bat 与 download_subtitles.ps1，检查 staged diff，完成 feature Commit；随后第一次 push 新分支到 origin。
+
+[2026-10-06] G6/G8 前置 PASS：Feature Commit 与首次新分支 Push 完成。
+- 用户仅暂存 `download_subtitles.bat` 与 `download_subtitles.ps1`，成功把功能改动与 WORK_RULES.md / learning_log.txt 的学习记录修改分离。
+- `git status` 清楚显示：功能文件位于 Changes to be committed；WORK_RULES.md 与 learning_log.txt 位于 Changes not staged for commit。
+- `git --no-pager diff --staged` 核验 staged 内容只包含两个功能文件。
+- 用户完成 feature Commit：`bf67419 feat: download best subtitle for single video`，2 files changed, 93 insertions(+)，新增 download_subtitles.ps1。
+- 用户首次执行 `git push -u origin feat/single-video-subtitles` 成功，远程创建同名新分支。
+- Git 输出：`branch 'feat/single-video-subtitles' set up to track 'origin/feat/single-video-subtitles'`，说明本地 feature branch 已建立对远程跟踪分支 origin/feat/single-video-subtitles 的 upstream tracking relationship。
+- 新知识：`git add .` 中 `.` 是“当前目录”路径；在仓库根目录执行时，会把当前目录及其子目录内可被 Git 跟踪的新增/修改/删除变化加入暂存区，仍遵守 .gitignore，因此教学项目中容易误暂存无关文件。
+- 新知识：`-u` 是 `--set-upstream`，第一次 push 时为当前本地分支设置 upstream；以后通常可以直接使用 `git push` / `git pull`，Git 会知道默认对应的远程分支。
+- 新知识：这里跟踪的是 `origin/feat/single-video-subtitles`，不是笼统“跟踪 origin”。origin 是远程仓库别名，origin/feat/single-video-subtitles 才是对应的远程跟踪分支引用。
+- 新知识：`git log` 中 log 的本义是“日志/记录”；`git log` 显示的是 Commit 历史记录，而不是所有 Git 命令操作日志。
+- 下一步：用户亲手创建第一条 Pull Request，将 feat/single-video-subtitles 合并目标设为 main，并学习 base / compare / PR / review / merge。
+
+[2026-10-06] G8 开始：第一次 Pull Request。
+- 本地 feat/single-video-subtitles 已成功推送到 origin/feat/single-video-subtitles，feature Commit 为 bf67419。
+- 新知识：Pull Request（PR）是“请求把一个分支的改动合并到另一个分支”，它不是 Git 本地命令本身，而是 GitHub 等托管平台上的协作流程。
+- 新知识：PR 页面里的 base 是“目标分支 / 要合进去的分支”，本项目第一次 PR 的 base 应为 main。
+- 新知识：compare 是“来源分支 / 带着新改动来申请合并的分支”，本项目应为 feat/single-video-subtitles。
+- 新知识：本地 Working Tree 中未 Commit、未 Push 的 WORK_RULES.md / learning_log.txt 修改不会出现在 GitHub PR 中。PR 比较的是远程分支已经拥有的 Commit 历史。
+- 本次 PR 应只包含 bf67419 中的两个功能文件：download_subtitles.bat 与 download_subtitles.ps1。
+- Issue #1 可在 PR 描述中使用 `Closes #1` 关联；合并 PR 后 GitHub 会自动关闭该 Issue。该 Issue 仍不计为用户的第一次 Issue 创建实践。
+- 下一步：用户亲手在 GitHub 创建第一条 PR，base=main，compare=feat/single-video-subtitles，并报告 PR 页面结果。
+
+[2026-10-06] G8 PASS：第一次 Pull Request 创建完成。
+- 用户亲手创建 Pull Request #2：feat: download best subtitle for single video。
+- GitHub 当前状态核验：PR #2 open、mergeable=true、base=main、head=feat/single-video-subtitles、1 个 Commit。
+- base main 当前指向 7f33879；head feature 当前指向 bf67419。
+- 新知识：`git push` 只会把指定本地分支的 Commit 推送到远程对应分支；它不会自动把 feature 的 Commit 合并进 main。
+- 新知识：`origin` 是远程仓库别名，不是一个单独只指向“最新版 Commit”的指针。远程仓库里可以同时存在 origin/main、origin/feat/... 等多个远程跟踪分支，各自指向不同 Commit。
+- 新知识：Pull Request 是托管平台上的“合并申请/审查流程”：请求把 compare/head 分支中的改动合入 base 分支。Push 负责“把分支送到远程”，PR 负责“申请把一个远程分支的改动纳入另一个远程分支”。
+- Issue #1 是项目任务 `feat: support single-video subtitle download`，目标是实现 F0 单视频字幕下载及验收条件；PR 描述中的 `Closes #1` 把实现 PR 与该任务关联，合并到默认分支后 GitHub 会自动关闭 Issue #1。
+- 教学纠错保持不变：Issue #1 最初由 AI 创建，因此仍不计为用户第一次亲手创建 Issue 的实践。
+- 下一步：理解 PR 页面中的 Conversation / Commits / Files changed，并由用户亲手执行第一次 Merge Pull Request。
+
+[2026-10-06] G8 PR 内容检查 PASS，进入第一次 Merge Pull Request。
+- 用户在 PR #2 页面核验：Commits = 1，Files changed = 2。
+- 结论：PR 内容干净，仅包含 feature Commit bf67419，以及 download_subtitles.bat / download_subtitles.ps1 两个功能文件。
+- GitHub 仓库当前允许三种合并方式：merge commit、squash merge、rebase merge。
+- 新知识：Merge Pull Request 真正改变的是 base 分支（本次为远程 main），让 main 获得 feature 分支的改动。
+- 新知识：Merge commit 会保留 feature Commit，并额外创建一个合并 Commit；squash 会把 PR 中多个 Commit 压成一个新的 Commit；rebase merge 会把 PR Commit 重新接到 base 顶部，形成线性历史。
+- 本次教学选择：第一次 Merge 使用默认的 Merge pull request / Create a merge commit，便于直观看到 PR 合并节点与分支历史。
+- 新知识：GitHub 上 Merge 完成后，远程 main 会更新，但本地 main 与本地记录的 origin/main 不会凭空立即刷新；后续需要 git fetch / git pull 才能让本地认识远程新状态。
+- 下一步：用户亲手在 PR #2 页面执行 Merge pull request，并确认合并。
+
+[2026-10-06] G8 PASS：第一次 Merge Pull Request 完成。
+- 用户亲手完成 PR #2 合并；GitHub 页面显示 Merged。
+- Issue #1 因 PR 描述中的 `Closes #1` 已自动 Closed。
+- GitHub 核验：PR #2 merged=true，merge_commit_sha=5690bbddf2e1c592f0129c8155308b6f1beeb266。
+- Merge Commit 短 SHA 可写为 `5690bbd`。
+- 新知识：Commit SHA 是 Commit 对象的唯一哈希标识；GitHub 页面通常显示短 SHA，但完整 SHA 可在 PR 元数据、Commit 页面或 `git log` / `git show` 中查看。
+- 新知识：本次使用 Merge commit，因此 main 获得 feature 改动的同时，还新增了一个专门记录“PR #2 已合并”的 Merge Commit。
+- 下一步：在本地演示 GitHub 远程 main 已更新，而本地 main / origin/main 还需通过 fetch/pull 同步。
+
+[2026-10-06] 远程同步实验 PASS：git fetch 后 origin/main 更新，本地 main 未移动。
+- fetch 前：`origin/main` 与本地 `main` 都指向 7f33879；当前 feature 与 origin/feature 指向 bf67419。
+- 用户执行 `git fetch origin` 后，Git 输出 `7f33879..5690bbd main -> origin/main`。
+- fetch 后：`origin/main` 与 `origin/HEAD` 指向 Merge Commit 5690bbd；本地 `main` 仍停在 7f33879；当前 feature / origin/feature 仍在 bf67419。
+- 结论：`git fetch` 会更新远程跟踪分支引用和下载远程新对象，但不会自动移动当前本地分支。
+- 新知识：`--graph` 在 log 左侧绘制 ASCII 分支/合并图，只改变显示，不改变仓库历史。
+- 新知识：`--all` 让 `git log` 从所有本地可见 refs（如本地分支、远程跟踪分支、tags 等）一起展示可达历史，而不是只沿当前 HEAD 看。
+- 新知识：`-10` 表示最多显示 10 个 Commit，等价于 `--max-count=10`。
+- 新知识：fetch 后出现 `origin/HEAD`，表示 origin 远程仓库的默认分支指向；本项目中它指向 `origin/main`。
+- 下一步：切换到本地 main，并用安全的 fast-forward pull 把本地 main 同步到 5690bbd。
+
+[2026-10-06] 下一步命令准备：git pull --ff-only。
+- 新知识：`git pull` 通常可理解为先 fetch，再把对应远程分支整合进当前本地分支。
+- 新知识：`--ff-only` 表示只允许 fast-forward；如果本地与远程已经分叉，Git 会拒绝继续，而不是自动创建 Merge Commit。教学与安全场景下更可控。
+- 下一步：切换到 main，确认状态后执行 `git pull --ff-only`，让本地 main 从 7f33879 快进到 5690bbd。
+
+[2026-10-06] 本地 main 同步 PASS：git pull --ff-only 快进到 Merge Commit。
+- 用户在 main 上执行 `git pull --ff-only`，从 7f33879 Fast-forward 到 5690bbd。
+- 最终 `git log --oneline --decorate --graph --all -10` 显示：`HEAD -> main`、`origin/main`、`origin/HEAD` 同时指向 5690bbd；feature 与 origin/feature 指向 bf67419。
+- `git status` 显示 main 已与 origin/main 同步，但 WORK_RULES.md / learning_log.txt 仍是未暂存本地修改。
+- 新知识：ASCII graph 中的 `*` 表示 Commit 节点，纵向 `|` 表示一条历史线继续，`\` 与 `/` 表示历史线分叉/汇合；Merge Commit 有两个父 Commit，因此会画成两条父历史汇入同一个节点。
+- 新知识：读取 graph 时应按“Commit 的父子关系”理解，而不是把字符当成目录树；5690bbd 的两个父历史分别来自 main 的 7f33879 和 feature 的 bf67419。
+- 新知识：`modified` 只表示 Working Tree 中 tracked 文件相对当前 Commit 有变化，不意味着必须立刻 `git add`。是否 add 取决于“是否希望把这些变化放入下一次 Commit”。
+- 本次 WORK_RULES.md / learning_log.txt 的 modified 不是 pull 新产生的功能变更；它们在之前 feature 分支上就已经是本地未提交修改，并在安全切换分支时随 Working Tree 一起保留下来。
+- 下一步：整理并单独提交学习记录/工作规则，让 main 回到 clean 状态，再进入下一阶段。
+

@@ -13,29 +13,43 @@
 - 某项核心操作只有在用户已经亲手完成过、并明确要求 AI 代为执行时，AI 才可以代做。
 - 已发生的例外：Issue #1 `feat: support single-video subtitle download` 曾被 AI 直接创建。该 Issue 保留作为真实项目 Issue，但不计为用户的“第一次 Issue 创建实践”；后续仍需由用户亲手创建一个 Issue 完成学习验收。
 
-## 3. 持续记录要求
+## 3. 权威文件边界（持续性规则）
+- `WORK_RULES.md` 是给 AI 看的权威工作文件。所有持续性的教学流程、记录流程、操作边界、安全规则和 AI 行为约束都必须写在这里。
+- `github_knowledge.docx` 是给用户看的学习手册。只记录用户需要学习和复习的知识：概念、命令、参数、例子、常见误区、Q&A、Warning/Error 与排障方法。
+- 不再把“AI 以后必须怎么做”“每轮必须如何记录”等持续性内部执行规则新增到 `github_knowledge.docx`。
+- `learning_log.txt` 是学习进度日志，只记录阶段、PASS/BLOCKED、已完成实践、当前状态和下一步；不作为 AI 权威规则文件。
+- 已经错误写入 `github_knowledge.docx` 的旧流程说明可以保留，不要求回滚；从本规则生效后按上述边界执行。
+
+## 4. 持续记录要求
 - 每次 Git / GitHub 学习后更新 learning_log.txt，记录阶段、PASS/BLOCKED、当前状态和下一步。
-- 将学习中遇到的所有 Git / GitHub 知识点持续整理进 github_knowledge.docx。
+- 将学习中遇到的 Git / GitHub 与本项目工具链知识持续整理进 github_knowledge.docx。
 - 用户提出的问题与对应解答一并写入 github_knowledge.docx。
-- 每次回答中只要新增 Git / GitHub 知识点、解释新的命令参数、处理 Warning/Error、完成 PASS/BLOCKED 验收，AI 必须在继续下一阶段前同步更新 learning_log.txt 与 github_knowledge.docx；不得只在聊天中讲解后跳过落盘。
-- 如果本轮只是闲聊、没有新增 Git / GitHub 学习内容，则无需机械更新记录。
+- 每次回答中只要新增 Git / GitHub 或项目工具链知识点、解释新的命令参数、处理 Warning/Error、完成 PASS/BLOCKED 验收，AI 必须在继续下一阶段前同步更新 learning_log.txt 与 github_knowledge.docx；不得只在聊天中讲解后跳过落盘。
+- 如果本轮只是闲聊、没有新增学习内容，则无需机械更新记录。
+- 上述“必须同步记录”的要求属于持续性工作流规则，只记录在 `WORK_RULES.md`，不得再复制成 `github_knowledge.docx` 的新知识章节。
 - 命令必须尽量拆解语法。例如：git branch -M main = git（调用程序）+ branch（操作分支）+ -M（强制重命名）+ main（新名称）。
 - Warning / Error / 排障案例也属于知识点：记录现象、原因、危险性、解决方案和验证方法。
 
-## 4. 文档质量
+## 5. 文档质量
 - github_knowledge.docx 是给用户长期复习的学习手册，必须保持清晰、美观、可扫描。
 - 优先采用：标题层级、命令代码块、语法拆解表、白话解释、例子、常见误区、Q&A、排障流程。
 - 不把文档写成聊天流水账；保留用户问题，但答案应整理成可复习结构。
 
-## 5. Git 安全规则
+## 6. Git 安全规则
 - 不上传 Cookie、登录凭证、Token、密码或其他秘密。
 - 提交前检查 git status；必要时检查 git diff / git diff --staged。
 - 不在未解释影响前执行 reset --hard、clean -fd、force push、rebase 等可能破坏历史或删除文件的命令。
 - 每个 Commit 尽量只表达一个清晰变化。
 
-## 6. 项目开发规则
+## 7. 项目开发规则
 - 项目功能与 GitHub 工作流同步学习：实现功能的同时学习 Branch、Issue、PR、Release 等。
 - 先做可运行的小版本，再逐步完善，不为展示工程化而过度设计。
 - 真实下载字幕、个人 urls.txt、archive.txt 等运行数据与开源源码分离。
+- 字幕导出只选择一条“最优字幕”，不默认把所有字幕全部导出。
+- 字幕语言优先级：中文 > 英语 > 其它语言。
+- 同一语言优先级：人工字幕 > AI 字幕。
+- 合并后的总顺序按：中文人工 > 中文 AI > 英文人工 > 英文 AI > 其它人工 > 其它 AI。
+- `danmaku` 永远视为弹幕轨道，不属于字幕候选，必须排除。
+- 当前 B 站标签约定中，以 `ai-` 开头的字幕标签按 AI 字幕处理；不以 `ai-` 开头的候选按人工字幕处理。若未来 B 站标签规则变化，需以实际 `--list-subs` 输出重新验证。
 
 最后更新：2026-10-06
