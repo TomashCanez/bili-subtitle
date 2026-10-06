@@ -1,0 +1,87 @@
+BiliSubtitle - GitHub 开源项目学习日志
+====================================
+
+项目目标
+--------
+做一个面向 Windows 用户的小工具：批量读取 B 站视频链接，通过 yt-dlp 只下载可用字幕，排除弹幕，并保存为便于后续阅读/AI分析的文本文件。
+
+这个项目同时承担第二个目标：从零学习如何创建和维护一个规范的 GitHub 开源项目。
+
+当前项目目录
+------------
+D:\AIWorkspace\BiliSubtitle
+
+当前已有内容
+------------
+- urls.txt                待处理的 B 站视频 URL 列表
+- archive.txt             yt-dlp 下载归档，避免重复处理
+- download_subtitles.bat  Windows 一键下载脚本（待实现）
+- subtitles\              字幕输出目录
+- learning_log.txt        本学习日志
+
+核心功能路线
+------------
+F0  单视频字幕下载
+F1  urls.txt 批量下载
+F2  排除 danmaku，只保留真正字幕
+F3  archive.txt 防止重复下载
+F4  统一输出目录与文件命名
+F5  错误处理 / 登录 Cookie 使用说明
+F6  字幕转纯文本（可选）
+F7  README / 安装说明 / 使用示例
+F8  第一个稳定 Release
+
+Git / GitHub 学习路线
+---------------------
+G0  理解 Git、GitHub、Repository、Commit
+G1  git init：把普通文件夹变成 Git 仓库
+G2  git status / git add / git commit
+G3  .gitignore：决定哪些文件永远不上传
+G4  在 GitHub 创建远程 Repository
+G5  remote / push：把本地仓库上传 GitHub
+G6  branch：为新功能创建分支
+G7  Issue：把需求和 Bug 变成可追踪任务
+G8  Pull Request：审查并合并功能
+G9  README、LICENSE、开源项目基本结构
+G10 tag / Release / version：发布稳定版本
+G11 GitHub Actions：自动做基础检查（后期）
+G12 日常维护：Issue、PR、版本、Changelog
+
+建议项目结构（最终目标）
+------------------------
+BiliSubtitle/
+|-- .github/
+|   `-- workflows/
+|-- scripts/
+|-- subtitles/            本地输出，不提交 Git
+|-- .gitignore
+|-- LICENSE
+|-- README.md
+|-- CHANGELOG.md
+|-- urls.example.txt
+|-- download_subtitles.bat
+`-- learning_log.txt
+
+学习原则
+--------
+1. 每次只引入少量 Git/GitHub 概念。
+2. 重要 Git 命令优先由学习者本人执行，而不是全由 AI 代劳。
+3. 每完成一个阶段，都先用 git status / git diff 检查发生了什么。
+4. 不把 Cookie、登录凭证、真实下载字幕等个人/版权内容提交到公开仓库。
+5. 每个 Commit 尽量只表达一个清晰变化。
+6. 项目功能与 GitHub 工作流一起推进，而不是“代码写完后才学 Git”。
+
+阶段记录
+--------
+[2026-10-06] 初始化学习项目。
+- 用户已手动创建基础目录和空文件。
+- Git 2.54.0.windows.1 已安装。
+- GitHub CLI 2.102.0 已安装，但尚未登录。
+- Git 全局 user.name / user.email 尚未配置。
+- G1 PASS：用户已亲手执行 git init，成功创建本地 Git Repository。
+- 已执行 git status；当前默认分支为 master，4 个已有文件均处于 Untracked 状态。
+- 关键理解：Git 会先看到文件，但只有经过 add/commit 后才进入版本历史。
+- 下一步：把 master 改为 main -> 创建 .gitignore -> 理解 Working Tree / Staging Area / Commit -> 配置 Git 身份 -> 第一次 commit。
+`r`n[2026-10-06] G2/G3 学习推进。`r`n- G1 状态：PASS；当前分支 main。`r`n- 已学习 Working Tree / Staging Area / git add / .gitignore。`r`n- 用户新增 github_knowledge.docx，作为长期 GitHub 学习手册；已生成并写入知识点、命令拆解与 Q&A。`r`n- 已创建 WORK_RULES.md，固化持续更新 learning_log 与 github_knowledge、文档美观、Git 安全等规则。`r`n- 已确认本机 Git core.autocrlf=true；learning_log.txt 的 LF -> CRLF 信息属于换行符 Warning，不是错误。`r`n- 新知识：.gitkeep 是为空目录占位的普通约定文件，不是 .gitignore 的占位文件。`r`n- 新知识：PowerShell @(... ) 创建数组，| 是管道，Set-Content 写文件，Get-Content 读文件。`r`n- 下一步：整理公开仓库与本地学习辅助文件边界 -> 配置 Git 作者身份 -> 第一次 Commit。
+`r`n[2026-10-06] G2 继续。`r`n- 用户确认当前暂存区包含 .gitignore / WORK_RULES.md / download_subtitles.bat / learning_log.txt，状态符合预期。`r`n- 新知识：archive.txt 是 yt-dlp 的下载归档/已处理视频清单，用于避免批量任务重复处理同一视频。`r`n- archive.txt 属于本机运行状态，因此保持在 .gitignore 中，不提交 GitHub。`r`n- 对字幕-only 模式的归档写入时机将在真正实现批量命令时用最小测试验证。`r`n- 下一步：配置 Git 作者身份（user.name / user.email）-> 第一次 Commit -> git log 验收。
+`r`n[2026-10-06] 第一次 Commit 前置知识。`r`n- 新知识：每个 Commit 会记录作者 user.name 和 user.email。`r`n- 新知识：git config --global 将配置设为当前 Windows 用户的默认 Git 身份；省略 --global 可对当前仓库覆盖。`r`n- 开源项目建议使用 GitHub noreply 邮箱，减少真实邮箱暴露；从 GitHub Settings -> Emails 复制实际显示的 noreply 地址。`r`n- 因 learning_log.txt 再次更新，第一次 Commit 前需要再次 git add learning_log.txt。
