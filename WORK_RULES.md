@@ -17,6 +17,8 @@
 - 每次 Git / GitHub 学习后更新 learning_log.txt，记录阶段、PASS/BLOCKED、当前状态和下一步。
 - 将学习中遇到的所有 Git / GitHub 知识点持续整理进 github_knowledge.docx。
 - 用户提出的问题与对应解答一并写入 github_knowledge.docx。
+- 每次回答中只要新增 Git / GitHub 知识点、解释新的命令参数、处理 Warning/Error、完成 PASS/BLOCKED 验收，AI 必须在继续下一阶段前同步更新 learning_log.txt 与 github_knowledge.docx；不得只在聊天中讲解后跳过落盘。
+- 如果本轮只是闲聊、没有新增 Git / GitHub 学习内容，则无需机械更新记录。
 - 命令必须尽量拆解语法。例如：git branch -M main = git（调用程序）+ branch（操作分支）+ -M（强制重命名）+ main（新名称）。
 - Warning / Error / 排障案例也属于知识点：记录现象、原因、危险性、解决方案和验证方法。
 

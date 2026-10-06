@@ -149,3 +149,19 @@ BiliSubtitle/
 - 从现在开始，Issue / Branch / PR，以及后续第一次 Merge / Tag / Release，全部由用户亲手操作。
 - 正确教学流程：AI 解释 -> 用户执行 -> 用户报告 -> AI 验收 PASS/BLOCKED -> AI 更新学习记录。
 - 下一步：补齐知识手册后继续 G6/G7；后续 Branch / Issue / PR 不再由 AI 代做。
+
+[2026-10-06] G6 PASS：第一次 feature branch 创建完成。
+- 用户先在 main 上提交学习规则更新：79da86e docs: update learning workflow rules，并成功 git push 到 origin/main。
+- 用户亲手执行 git switch -c feat/single-video-subtitles，成功创建并切换到第一条 feature branch。
+- git status：On branch feat/single-video-subtitles / working tree clean。
+- git branch 显示：* feat/single-video-subtitles；main。星号 * 表示当前所在分支。
+- git log --oneline --decorate 显示：79da86e (HEAD -> feat/single-video-subtitles, origin/main, main)。说明新分支刚创建、尚未产生新 Commit，因此 feat 分支、main 和 origin/main 仍指向同一个 Commit。
+- 新知识：git diff --staged 用于查看“已经 git add 到 Staging Area、即将进入下一次 Commit”的差异，相当于 Commit 前安检。
+- 新知识：diff 输出中，--- 表示旧文件，+++ 表示新文件；@@ ... @@ 标识一个差异区块；行首 + 表示新增，- 表示删除，无符号表示上下文。
+- 新知识：git diff --staged 输出较长时 Git 通常交给 pager（常见为 less）分页显示；此时并未卡死，也不在普通 PowerShell 命令提示符。
+- pager / less 基本操作：q 退出；Space 下一页；b 上一页；方向键滚动；g 到开头；G 到末尾；/文本 搜索。
+- 如果不想进入 pager，可使用 git --no-pager diff --staged，让差异直接输出到终端并立即返回命令提示符。
+- Commit 输出 `2 files changed, 59 insertions(+), 1 deletion(-)` 表示两个文件变化，共新增 59 行、删除 1 行。
+- 流程提醒：本轮 AI 再次出现“聊天中讲完知识但未立即同步文件”的遗漏，因此 WORK_RULES.md 新增强制规则：只要本轮新增 Git/GitHub 知识、命令参数、Warning/Error 或 PASS/BLOCKED 验收，必须在继续下一阶段前同步更新 learning_log.txt 与 github_knowledge.docx。
+- 下一步：同步知识手册完成后，进入 F0：在 feat/single-video-subtitles 分支实现单视频字幕下载。
+
