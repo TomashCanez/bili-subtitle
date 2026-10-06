@@ -129,3 +129,23 @@ BiliSubtitle/
 - 新知识：git remote add origin <URL> 建立远程连接；git remote -v 检查 fetch/push URL。
 - 新知识：git push -u origin main 第一次推送 main，并建立 main 跟踪 origin/main 的 upstream 关系。
 - 下一步：用户亲手执行 remote add、remote -v、push -u，并验证 GitHub 远程 Commit。
+
+[2026-10-06] G5 PASS：首次远程 Push 完成。
+- 用户亲手配置 origin：https://github.com/TomashCanez/bili-subtitle.git。
+- 用户亲手执行 git push -u origin main，首次 Push 成功。
+- 本地 main 已建立对 origin/main 的 upstream tracking relationship。
+- Push 后 git status 显示：Your branch is up to date with 'origin/main'. / working tree clean。
+- git log --oneline --decorate 显示：2f9ddfc (HEAD -> main, origin/main) docs: start remote repository lesson。
+- GitHub 远程端已验证 Commit 2f9ddfc 存在，说明本地与远程 main 已同步。
+- 新知识：Git 远程 URL 常以 .git 结尾；它来自 Git 裸仓库常见的 repository.git 命名传统，用于明确表示 Git 仓库端点。GitHub HTTPS 地址很多时候不带 .git 也能工作，但带 .git 是标准写法。
+- 新知识：git 是 Git 版本控制工具；gh 是 GitHub CLI，即 GitHub 官方命令行客户端。git 负责 commit / branch / merge / push / pull 等版本控制；gh 负责 auth / issue / pr / repo / release 等 GitHub 平台操作。
+- 新知识：git log --decorate 会显示指向 Commit 的引用（refs），例如 HEAD、main、origin/main、tag；它只改变日志显示，不修改 Commit 历史。
+- 对 `2f9ddfc (HEAD -> main, origin/main)` 的理解：HEAD 当前位于 main，本地 main 与远程跟踪分支 origin/main 都指向 Commit 2f9ddfc。
+
+[2026-10-06] 教学流程纠错。
+- AI 错误地代替用户创建了第一个 GitHub Issue #1：feat: support single-video subtitle download。
+- Issue #1 保留作为项目真实 Issue，但不计为用户的“第一次 Issue 创建实践”。后续仍需由用户亲手创建一个 Issue 才算 G7 对应实践通过。
+- 新增最高优先级守则：AI 不应代替学习者完成第一次核心 GitHub 操作；教学项目中应优先让学习者亲手执行，再由 AI 验收。
+- 从现在开始，Issue / Branch / PR，以及后续第一次 Merge / Tag / Release，全部由用户亲手操作。
+- 正确教学流程：AI 解释 -> 用户执行 -> 用户报告 -> AI 验收 PASS/BLOCKED -> AI 更新学习记录。
+- 下一步：补齐知识手册后继续 G6/G7；后续 Branch / Issue / PR 不再由 AI 代做。
